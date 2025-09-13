@@ -1,54 +1,53 @@
 package com.example.fra_backend.service;
 
-import com.example.fra_backend.dto.AuthRequest;
-import com.example.fra_backend.dto.AuthResponse;
+import com.example.fra_backend.dto.UserDTO;
+import com.example.fra_backend.mapper.UserMapper;
 import com.example.fra_backend.model.User;
 import com.example.fra_backend.repository.UserRepository;
-import com.example.fra_backend.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepo;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager manager;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    public User register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public AuthResponse login(AuthRequest request) {
-        System.out.println(request);
-        Authentication authentication = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        System.out.println("h2");
+    public UserDTO saveUser(UserDTO dto) {
+        User user = UserMapper.toEntity(dto);
+        User saved = userRepository.save(user);
+        return UserMapper.toDTO(saved);
+    }
 
-        if (authentication.isAuthenticated()) {
-            System.out.println("Inside if block");
-            User user = userRepo.findByUsername(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    public Optional<UserDTO> getUserById(Long id) {
+        return userRepository.findById(id).map(UserMapper::toDTO);
+    }
 
-            String token = jwtUtil.generateToken(user.getUsername(), String.valueOf(user.getRole()));
-            return new AuthResponse(token, user.getRole());
-        } else {
-            System.out.println("Inside else block");
-            throw new RuntimeException("Invalid credentials");
-        }
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<UserDTO> getUserByUsername(String username) {
+        return userRepository.findByUsername(username).map(UserMapper::toDTO);
+    }
+
+    public Optional<UserDTO> getUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(UserMapper::toDTO);
+    }
+
+    public Optional<UserDTO> getUserByPhone(String phone) {
+        return userRepository.findByPhone(phone).map(UserMapper::toDTO);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }
