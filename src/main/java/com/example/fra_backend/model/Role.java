@@ -6,5 +6,8 @@ public enum Role {
     GRAM_SABHA,
     DLC,
     SDLC,
+    ADMIN,
+    ORG
+
 
 }
