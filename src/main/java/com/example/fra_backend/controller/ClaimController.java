@@ -1,6 +1,5 @@
 package com.example.fra_backend.controller;
 
-import com.example.fra_backend.model.Claim;
 import com.example.fra_backend.service.ClaimService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

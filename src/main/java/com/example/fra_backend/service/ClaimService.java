@@ -1,6 +1,5 @@
 package com.example.fra_backend.service;
 
-import com.example.fra_backend.model.Claim;
 import com.example.fra_backend.repository.ClaimRepository;
 import org.springframework.stereotype.Service;
 
